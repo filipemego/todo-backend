@@ -2,11 +2,11 @@ package main
 
 // TodoRepository struct.
 type TodoRepository struct {
-	db Database
+	db *Database
 }
 
 // NewTodoRepository constructor.
-func NewTodoRepository(db Database) *TodoRepository {
+func NewTodoRepository(db *Database) *TodoRepository {
 	return &TodoRepository{db: db}
 }
 

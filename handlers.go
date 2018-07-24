@@ -1,15 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
-	"net/url"
 )
 
 func createTodoHandler(repository *TodoRepository) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		queryString, _ := url.ParseQuery(request.URL.RawQuery)
-		fmt.Printf("%v\n", queryString)
+		// queryString, _ := url.ParseQuery(request.URL.RawQuery)
+
 		switch request.Method {
 		case "GET":
 			todoGetHandler(writer, request, repository)
@@ -26,4 +25,20 @@ func todoGetHandler(writer http.ResponseWriter, request *http.Request, repositor
 
 func todoPostHandler(writer http.ResponseWriter, request *http.Request, repository *TodoRepository) {
 	writer.WriteHeader(201)
+}
+
+func jsonWrite(writer http.ResponseWriter, content Todos) error {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(200)
+
+	json, jerr := json.Marshal(content)
+	if jerr != nil {
+		return jerr
+	}
+
+	if _, werr := writer.Write(json); werr != nil {
+		return werr
+	}
+
+	return nil
 }

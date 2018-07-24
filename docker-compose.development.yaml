@@ -1,0 +1,19 @@
+version: "3.1"
+services:
+  mysql:
+    image: mysql
+    volumes:
+      - "./migration:/docker-entrypoint-initdb.d"
+    command: --default-authentication-plugin=sha256_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234pw
+      MYSQL_USER: todo
+      MYSQL_PASSWORD: 1234pw
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    ports:
+      - 8080:80
+    # environment:
+      # PMA_HOST: mysql
