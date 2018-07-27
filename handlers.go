@@ -2,29 +2,36 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
-func createTodoHandler(repository *TodoRepository) func(writer http.ResponseWriter, request *http.Request) {
+func createTodoHandler(service *TodoService) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		// queryString, _ := url.ParseQuery(request.URL.RawQuery)
-
 		switch request.Method {
-		case "GET":
-			todoGetHandler(writer, request, repository)
 		case "POST":
-			todoPostHandler(writer, request, repository)
+			todoPostHandler(writer, request, service)
 		}
 	}
 }
 
-func todoGetHandler(writer http.ResponseWriter, request *http.Request, repository *TodoRepository) {
-	todos := repository.GetAll()
-	jsonWrite(writer, todos)
+func todoPostHandler(writer http.ResponseWriter, request *http.Request, service *TodoService) {
+	todoEntry, err := parseTodoEntry(request)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, repErr := service.Save(todoEntry)
+	if repErr != nil {
+		log.Fatal(repErr)
+	}
+
+	writer.WriteHeader(201)
 }
 
-func todoPostHandler(writer http.ResponseWriter, request *http.Request, repository *TodoRepository) {
-	writer.WriteHeader(201)
+func parseTodoEntry(request *http.Request) (Todo, error) {
+	var entry Todo
+	decoder := json.NewDecoder(request.Body)
+	return entry, decoder.Decode(&entry)
 }
 
 func jsonWrite(writer http.ResponseWriter, content Todos) error {

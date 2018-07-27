@@ -33,8 +33,22 @@ func NewDatabase(databaseURI string) *Database {
 	if pingErr != nil {
 		log.Fatal(pingErr)
 	}
-
 	return &Database{db: db}
+}
+
+// Insert store a record on the database
+func (db *Database) Insert(query string, args ...interface{}) (int64, error) {
+	stmt, prepError := db.db.Prepare(query)
+	if prepError != nil {
+		log.Fatal(prepError)
+	}
+
+	response, respError := stmt.Exec(args...)
+	if respError != nil {
+		log.Fatal(respError)
+	}
+
+	return response.LastInsertId()
 }
 
 // Close ends the database connection
