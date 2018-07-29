@@ -2,7 +2,7 @@ version: "3.1"
 services:
   mysql:
     image: mysql
-    # command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password
     ports:
       - 3306:3306
     volumes:
@@ -11,3 +11,9 @@ services:
       MYSQL_ROOT_PASSWORD: 1234pw
       MYSQL_USER: todo_app
       MYSQL_PASSWORD: 1234pw
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8081:80
+    environment:
+      PMA_HOST: mysql
