@@ -1,9 +1,10 @@
 # Todo
 
 ## Tasks
-- Save
-- Get
-- Env variables
-- Error handling
-- Database reconnecting
-- Log
+[X] Save
+[ ] Get
+[ ] Unit tests
+[ ] Env variables
+[ ] Error handling
+[ ] Database reconnecting
+[ ] Log
