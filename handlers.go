@@ -9,10 +9,22 @@ import (
 func createTodoHandler(service *TodoService) func(writer http.ResponseWriter, request *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		switch request.Method {
+		case "GET":
+			todoGetHandler(writer, request, service)
 		case "POST":
 			todoPostHandler(writer, request, service)
+		default:
+			writer.WriteHeader(405)
 		}
 	}
+}
+
+func todoGetHandler(writer http.ResponseWriter, request *http.Request, service *TodoService) {
+	todoEntries, err := service.Get()
+	if err != nil {
+		log.Fatal(err)
+	}
+	jsonWrite(writer, 200, todoEntries)
 }
 
 func todoPostHandler(writer http.ResponseWriter, request *http.Request, service *TodoService) {
@@ -20,7 +32,7 @@ func todoPostHandler(writer http.ResponseWriter, request *http.Request, service 
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, repErr := service.Save(todoEntry)
+	repErr := service.Save(todoEntry)
 	if repErr != nil {
 		log.Fatal(repErr)
 	}
@@ -34,9 +46,9 @@ func parseTodoEntry(request *http.Request) (Todo, error) {
 	return entry, decoder.Decode(&entry)
 }
 
-func jsonWrite(writer http.ResponseWriter, content Todos) error {
+func jsonWrite(writer http.ResponseWriter, status int, content Todos) error {
 	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(200)
+	writer.WriteHeader(status)
 
 	json, jerr := json.Marshal(content)
 	if jerr != nil {

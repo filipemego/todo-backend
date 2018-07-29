@@ -12,13 +12,15 @@ type Database struct {
 	db *sql.DB
 }
 
-// DatabaseWrite interface
+// DatabaseWrite interface.
 type DatabaseWrite interface {
+	Insert(query string, args ...interface{}) (int64, error)
 	Close()
 }
 
-// DatabaseRead interface
+// DatabaseRead interface.
 type DatabaseRead interface {
+	Select(query string, args ...interface{}) error
 	Close()
 }
 
@@ -36,7 +38,24 @@ func NewDatabase(databaseURI string) *Database {
 	return &Database{db: db}
 }
 
-// Insert store a record on the database
+// Select makes a SELEC.
+func (db *Database) Select(query string, args ...interface{}) error {
+	rows, qErr := db.db.Query(query)
+	if qErr != nil {
+		return qErr
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		rErr := rows.Scan(args...)
+		if rErr != nil {
+			return rErr
+		}
+	}
+	return nil
+}
+
+// Insert store a record on the database.
 func (db *Database) Insert(query string, args ...interface{}) (int64, error) {
 	stmt, prepError := db.db.Prepare(query)
 	if prepError != nil {
@@ -51,7 +70,7 @@ func (db *Database) Insert(query string, args ...interface{}) (int64, error) {
 	return response.LastInsertId()
 }
 
-// Close ends the database connection
+// Close ends the database connection.
 func (db *Database) Close() {
 	db.Close()
 }
